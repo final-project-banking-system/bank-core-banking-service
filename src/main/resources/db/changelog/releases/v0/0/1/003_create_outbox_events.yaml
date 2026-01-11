@@ -1,0 +1,64 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-outbox-events
+      author: marisol
+      changes:
+        - createTable:
+            tableName: outbox_events
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: aggregate_type
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: aggregate_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: topic
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: payload
+                  type: text
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: status
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: retry_count
+                  type: int
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: error_reason
+                  type: varchar(1000)
+
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: processed_at
+                  type: timestamp

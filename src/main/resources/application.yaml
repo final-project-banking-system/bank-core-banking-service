@@ -1,0 +1,42 @@
+server:
+  port: 8082
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  liquibase:
+    enabled: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://bank-auth-service:8081/auth/.well-known/jwks.json
+  kafka:
+    admin:
+      properties:
+        offsets.topic.replication.factor: 1
+        transaction.state.log.replication.factor: 1
+        transaction.state.log.min.isr: 1
+    bootstrap-servers: kafka:9092
+    topics:
+      - name: banking.transfers
+        partitions: 1
+        replication-factor: 1
+      - name: banking.accounts
+        partitions: 1
+        replication-factor: 1
+      - name: banking.transactions
+        partitions: 1
+        replication-factor: 1
+      - name: system.errors
+        partitions: 1
+        replication-factor: 1
+banking:
+  interest:
+    annual-rate: 0.05
