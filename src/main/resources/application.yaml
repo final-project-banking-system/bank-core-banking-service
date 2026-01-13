@@ -38,5 +38,11 @@ spring:
         partitions: 1
         replication-factor: 1
 banking:
+  kafka:
+    topics:
+      transfers: banking.transfers
+      accounts: banking.accounts
+      transactions: banking.transactions
+      systemErrors: system.errors
   interest:
     annual-rate: 0.05

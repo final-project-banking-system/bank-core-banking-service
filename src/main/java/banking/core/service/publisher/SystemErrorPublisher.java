@@ -1,12 +1,13 @@
-package banking.core.service;
+package banking.core.service.publisher;
 
 import banking.core.model.entity.OutboxEvent;
 import banking.core.repository.OutboxEventRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import banking.core.service.publisher.util.OutboxJsonUtil;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,10 +18,11 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class SystemErrorPublisher {
-    private static final String TOPIC_SYSTEM_ERRORS = "system.errors";
+    @Value("${banking.kafka.topics.systemErrors}")
+    private String topicSystemErrors;
 
     private final OutboxEventRepository outboxEventRepository;
-    private final ObjectMapper objectMapper;
+    private final OutboxJsonUtil outboxJsonUtil;
 
     public void publish(String service, String operation, String message, @Nullable Throwable e) {
         var errorId = UUID.randomUUID();
@@ -36,18 +38,12 @@ public class SystemErrorPublisher {
                 "occurredAt", LocalDateTime.now().toString()
         );
 
-        String json;
-        try {
-            json = objectMapper.writeValueAsString(payload);
-        } catch (JsonProcessingException ex) {
-            json = "{\"eventType\":\"SYSTEM_ERROR\",\"errorId\":\"" + errorId +
-                    "\",\"message\":\"Failed to serialize error payload\"}";
-        }
+        JsonNode json = outboxJsonUtil.toJsonNode(payload, "SYSTEM_ERROR event, errorId=" + errorId);
 
         outboxEventRepository.save(OutboxEvent.builder()
                 .aggregateType("ERROR")
                 .aggregateId(errorId)
-                .topic(TOPIC_SYSTEM_ERRORS)
+                .topic(topicSystemErrors)
                 .payload(json)
                 .build());
 

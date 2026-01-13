@@ -7,6 +7,7 @@ import banking.core.model.enums.TransactionStatus;
 import banking.core.model.enums.TransactionType;
 import banking.core.repository.BankAccountRepository;
 import banking.core.repository.TransactionRepository;
+import banking.core.service.publisher.TransactionOutboxPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,7 @@ import java.util.UUID;
 public class InterestService {
     private final BankAccountRepository bankAccountRepository;
     private final TransactionRepository transactionRepository;
+    private final TransactionOutboxPublisher transactionOutboxPublisher;
 
     @Value("${banking.interest.annual-rate}")
     private BigDecimal annualRate;
@@ -49,6 +51,7 @@ public class InterestService {
 
                 if (interest.compareTo(BigDecimal.ZERO) > 0) {
                     bankAccount.setBalance(balance.add(interest));
+                    bankAccountRepository.save(bankAccount);
 
                     Transaction transaction = Transaction.builder()
                             .toAccount(bankAccount)
@@ -56,7 +59,10 @@ public class InterestService {
                             .type(TransactionType.INTEREST)
                             .status(TransactionStatus.COMPLETED)
                             .build();
-                    transactionRepository.save(transaction);
+                    Transaction savedTransaction = transactionRepository.save(transaction);
+
+                    transactionOutboxPublisher.saveTransactionEvent("INTEREST_APPLIED",
+                            bankAccount.getUserId(), savedTransaction, null, bankAccount, interest);
                     numberOfProcessedBankAccounts++;
                 }
             }

@@ -58,3 +58,17 @@ databaseChangeLog:
             referencedTableName: bank_accounts
             referencedColumnNames: id
             constraintName: fk_transactions_to_account
+
+        - createIndex:
+            tableName: transactions
+            indexName: ix_transactions_from_account_id
+            columns:
+              - column:
+                  name: from_account_id
+
+        - createIndex:
+            tableName: transactions
+            indexName: ix_transactions_to_account_id
+            columns:
+              - column:
+                  name: to_account_id

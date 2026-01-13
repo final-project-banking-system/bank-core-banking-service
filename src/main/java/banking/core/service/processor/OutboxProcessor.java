@@ -33,7 +33,7 @@ public class OutboxProcessor {
                 continue;
             }
 
-            kafkaTemplate.send(event.getTopic(), event.getAggregateId().toString(), event.getPayload())
+            kafkaTemplate.send(event.getTopic(), event.getAggregateId().toString(), event.getPayload().toString())
                     .orTimeout(10, TimeUnit.SECONDS)
                     .whenComplete((result, error) -> {
                         if (error == null) {

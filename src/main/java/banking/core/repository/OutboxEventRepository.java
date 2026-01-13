@@ -34,7 +34,7 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEvent, Long> 
     @Modifying
     @Query("UPDATE OutboxEvent oe SET oe.status = :status, oe.retryCount = oe.retryCount + 1, " +
             "oe.errorReason = :error WHERE oe.id = :id AND oe.status = :inProgress")
-    int markFailedOrRetry(@Param("id") Long id,
+    void markFailedOrRetry(@Param("id") Long id,
                           @Param("inProgress") EventStatus inProgress,
                           @Param("status") EventStatus status,
                           @Param("error") String error);
