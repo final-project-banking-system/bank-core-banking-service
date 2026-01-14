@@ -48,7 +48,7 @@ public class BankAccountControllerWebTest {
     SystemErrorPublisher systemErrorPublisher;
 
     @Test
-    void createAccount_requiresAuth() throws Exception {
+    public void createAccount_requiresAuth() throws Exception {
         var body = new CreateBankAccountRequest(Currency.EUR);
 
         mockMvc.perform(post("/accounts").contentType("application/json")
@@ -56,7 +56,7 @@ public class BankAccountControllerWebTest {
     }
 
     @Test
-    void createAccount_ok_returns201() throws Exception {
+    public void createAccount_ok_returns201() throws Exception {
         UUID userId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
 

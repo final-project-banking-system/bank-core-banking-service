@@ -44,7 +44,7 @@ public class TransferControllerWebTest {
     SystemErrorPublisher systemErrorPublisher;
 
     @Test
-    void transfer_requiresAuth() throws Exception {
+    public void transfer_requiresAuth() throws Exception {
         var request = new TransferRequest(UUID.randomUUID(), UUID.randomUUID(), new BigDecimal("10.00"));
 
         mockMvc.perform(post("/transfers").contentType("application/json")
@@ -52,7 +52,7 @@ public class TransferControllerWebTest {
     }
 
     @Test
-    void transfer_invalidBody_returns400() throws Exception {
+    public void transfer_invalidBody_returns400() throws Exception {
         UUID userId = UUID.randomUUID();
 
         var request = new TransferRequest(UUID.randomUUID(), UUID.randomUUID(), null);
@@ -65,7 +65,7 @@ public class TransferControllerWebTest {
     }
 
     @Test
-    void transfer_ok_returns200() throws Exception {
+    public void transfer_ok_returns200() throws Exception {
         UUID userId = UUID.randomUUID();
         UUID txId = UUID.randomUUID();
 

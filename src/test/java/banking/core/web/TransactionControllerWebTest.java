@@ -45,13 +45,13 @@ public class TransactionControllerWebTest {
     SystemErrorPublisher systemErrorPublisher;
 
     @Test
-    void history_requiresAuth() throws Exception {
+    public void history_requiresAuth() throws Exception {
         mockMvc.perform(get("/transactions").param("accountId", UUID.randomUUID().toString()))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void history_ok_returnsPage() throws Exception {
+    public void history_ok_returnsPage() throws Exception {
         UUID userId = UUID.randomUUID();
         UUID accountId = UUID.randomUUID();
 
