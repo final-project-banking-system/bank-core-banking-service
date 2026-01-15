@@ -46,7 +46,7 @@ public class TransferOutboxPublisher {
                                                 BankAccount toAccount,
                                                 BigDecimal amount,
                                                 Transaction savedTransaction) {
-        Map<String, Object> data = Map.of("eventType", "TRANSFER_COMPLETED",
+        Map<String, Object> data = Map.of(
                 "transactionId", savedTransaction.getId(),
                 "userId", userId,
                 "fromAccountId", fromAccount.getId(),
@@ -56,6 +56,6 @@ public class TransferOutboxPublisher {
                 "occurredAt", java.time.LocalDateTime.now().toString()
         );
 
-        return outboxJsonUtil.toJsonNode(data, "TRANSFER event, txId=" + savedTransaction.getId());
+        return outboxJsonUtil.toJsonNode(data, "TRANSFER_COMPLETED");
     }
 }

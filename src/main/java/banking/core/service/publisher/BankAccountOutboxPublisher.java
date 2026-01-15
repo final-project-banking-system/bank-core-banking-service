@@ -36,7 +36,6 @@ public class BankAccountOutboxPublisher {
 
     private JsonNode createBankAccountEventPayload(String eventType, UUID userId, BankAccount account) {
         Map<String, Object> data = Map.of(
-                "eventType", eventType,
                 "accountId", account.getId(),
                 "userId", userId,
                 "accountNumber", account.getAccountNumber(),
@@ -46,6 +45,6 @@ public class BankAccountOutboxPublisher {
                 "occurredAt", java.time.LocalDateTime.now().toString()
         );
 
-        return outboxJsonUtil.toJsonNode(data, "ACCOUNT event, accountId=" + account.getId());
+        return outboxJsonUtil.toJsonNode(data, eventType);
     }
 }

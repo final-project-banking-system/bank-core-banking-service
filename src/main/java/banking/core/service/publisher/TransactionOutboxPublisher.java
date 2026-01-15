@@ -43,7 +43,6 @@ public class TransactionOutboxPublisher {
     private JsonNode createTransactionEventPayload(String eventType, UUID userId, Transaction transaction,
                                                    BankAccount fromAccount, BankAccount toAccount, BigDecimal amount) {
         Map<String, Object> data = new HashMap<>();
-        data.put("eventType", eventType);
         data.put("transactionId", transaction.getId());
         data.put("userId", userId);
         data.put("type", transaction.getType().name());
@@ -64,6 +63,6 @@ public class TransactionOutboxPublisher {
 
         data.put("occurredAt", LocalDateTime.now().toString());
 
-        return outboxJsonUtil.toJsonNode(data, "TRANSACTION event, txId=" + transaction.getId());
+        return outboxJsonUtil.toJsonNode(data, eventType);
     }
 }

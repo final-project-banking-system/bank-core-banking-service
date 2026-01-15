@@ -46,7 +46,7 @@ DB_NAME=core_db
 DB_USER=core_user
 DB_PASSWORD=TO_CHANGE
 
-SPRING_DATASOURCE_URL=jdbc:postgresql://auth_db:5432/core_db
+SPRING_DATASOURCE_URL=jdbc:postgresql://core_db:5432/core_db
 SPRING_DATASOURCE_USERNAME=core_user
 SPRING_DATASOURCE_PASSWORD=TO_CHANGE
 
@@ -56,7 +56,7 @@ SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
 ## Используемые Kafka топики
 
 - `banking.accounts` — события по счетам (ACCOUNT_CREATED, ACCOUNT_STATUS_CHANGED, ACCOUNT_CLOSED)
-- `banking.transactions` — события по транзакциям (DEPOSIT_COMPLETED, WITHDRAWAL_COMPLETED, INTEREST_APPLIED и др.)
+- `banking.transactions` — события по транзакциям (DEPOSIT_COMPLETED, WITHDRAWAL_COMPLETED, INTEREST_APPLIED)
 - `banking.transfers` — события переводов (TRANSFER_COMPLETED)
 - `system.errors` — системные ошибки сервиса (SYSTEM_ERROR)
 
