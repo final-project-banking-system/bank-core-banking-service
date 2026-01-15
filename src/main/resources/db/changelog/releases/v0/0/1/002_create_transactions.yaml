@@ -1,0 +1,74 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-transactions
+      author: marisol
+      changes:
+        - createTable:
+            tableName: transactions
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: from_account_id
+                  type: uuid
+
+              - column:
+                  name: to_account_id
+                  type: uuid
+
+              - column:
+                  name: amount
+                  type: numeric(19, 2)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: type
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: status
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: transactions
+            baseColumnNames: from_account_id
+            referencedTableName: bank_accounts
+            referencedColumnNames: id
+            constraintName: fk_transactions_from_account
+
+        - addForeignKeyConstraint:
+            baseTableName: transactions
+            baseColumnNames: to_account_id
+            referencedTableName: bank_accounts
+            referencedColumnNames: id
+            constraintName: fk_transactions_to_account
+
+        - createIndex:
+            tableName: transactions
+            indexName: ix_transactions_from_account_id
+            columns:
+              - column:
+                  name: from_account_id
+
+        - createIndex:
+            tableName: transactions
+            indexName: ix_transactions_to_account_id
+            columns:
+              - column:
+                  name: to_account_id
