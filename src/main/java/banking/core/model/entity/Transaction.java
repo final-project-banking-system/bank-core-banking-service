@@ -4,11 +4,8 @@ import banking.core.model.enums.TransactionStatus;
 import banking.core.model.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "transactions")
@@ -17,11 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Transaction {
-    @Id
-    @Column(name = "id", updatable = false, nullable = false)
-    private UUID id;
-
+public class Transaction extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "from_account_id", updatable = false)
     private BankAccount fromAccount;
@@ -40,15 +33,4 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private TransactionStatus status;
-
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    private void generateId() {
-        if (id == null) {
-            id = UUID.randomUUID();
-        }
-    }
 }

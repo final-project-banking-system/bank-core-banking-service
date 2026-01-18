@@ -24,6 +24,8 @@ spring:
         transaction.state.log.replication.factor: 1
         transaction.state.log.min.isr: 1
     bootstrap-servers: kafka:9092
+    consumer:
+      group-id: local
     topics:
       - name: banking.transfers
         partitions: 1

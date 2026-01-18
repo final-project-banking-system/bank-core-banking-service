@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -26,13 +27,13 @@ public class OutboxTxServiceTest {
 
     @Test
     public void handleFailure_whenMaxRetriesReached_marksFailed() {
-        long id = 10L;
+        UUID id = UUID.randomUUID();
 
         OutboxEvent event = OutboxEvent.builder()
-                .id(id)
                 .retryCount(2)
                 .status(EventStatus.IN_PROGRESS)
                 .build();
+        event.setId(id);
 
         when(outboxEventRepository.findById(id)).thenReturn(Optional.of(event));
 
@@ -44,13 +45,13 @@ public class OutboxTxServiceTest {
 
     @Test
     public void handleFailure_whenStillCanRetry_marksPending() {
-        long id = 11L;
+        UUID id = UUID.randomUUID();
 
         OutboxEvent event = OutboxEvent.builder()
-                .id(id)
                 .retryCount(0)
                 .status(EventStatus.IN_PROGRESS)
                 .build();
+        event.setId(id);
 
         when(outboxEventRepository.findById(id)).thenReturn(Optional.of(event));
 
@@ -62,59 +63,67 @@ public class OutboxTxServiceTest {
 
     @Test
     public void tryMarkInProgress_returnsTrue_whenUpdated() {
-        when(outboxEventRepository.markInProgress(1L, EventStatus.PENDING, EventStatus.IN_PROGRESS))
+        UUID id = UUID.randomUUID();
+
+        when(outboxEventRepository.markInProgress(id, EventStatus.PENDING, EventStatus.IN_PROGRESS))
                 .thenReturn(1);
 
-        boolean ok = outboxTxService.tryMarkInProgress(1L);
+        boolean ok = outboxTxService.tryMarkInProgress(id);
 
         assertTrue(ok);
-        verify(outboxEventRepository).markInProgress(1L, EventStatus.PENDING, EventStatus.IN_PROGRESS);
+        verify(outboxEventRepository).markInProgress(id, EventStatus.PENDING, EventStatus.IN_PROGRESS);
     }
 
     @Test
     public void handleFailure_whenEventNotFound_doesNothing() {
-        long id = 12L;
+        UUID id = UUID.randomUUID();
 
         when(outboxEventRepository.findById(id)).thenReturn(Optional.empty());
 
         assertDoesNotThrow(() -> outboxTxService.handleFailure(id, 3, "error"));
 
-        verify(outboxEventRepository, never()).markFailedOrRetry(anyLong(), any(), any(), anyString());
+        verify(outboxEventRepository, never()).markFailedOrRetry(any(UUID.class), any(), any(), anyString());
     }
 
     @Test
     public void tryMarkInProgress_returnsFalse_whenNotUpdated() {
-        when(outboxEventRepository.markInProgress(1L, EventStatus.PENDING, EventStatus.IN_PROGRESS))
+        UUID id = UUID.randomUUID();
+
+        when(outboxEventRepository.markInProgress(id, EventStatus.PENDING, EventStatus.IN_PROGRESS))
                 .thenReturn(0);
 
-        boolean ok = outboxTxService.tryMarkInProgress(1L);
+        boolean ok = outboxTxService.tryMarkInProgress(id);
 
         assertFalse(ok);
-        verify(outboxEventRepository).markInProgress(1L, EventStatus.PENDING, EventStatus.IN_PROGRESS);
+        verify(outboxEventRepository).markInProgress(id, EventStatus.PENDING, EventStatus.IN_PROGRESS);
     }
 
     @Test
     public void tryMarkSent_returnsTrue_whenUpdated() {
-        when(outboxEventRepository.markSent(eq(5L), eq(EventStatus.IN_PROGRESS), eq(EventStatus.SENT),
+        UUID id = UUID.randomUUID();
+
+        when(outboxEventRepository.markSent(eq(id), eq(EventStatus.IN_PROGRESS), eq(EventStatus.SENT),
                 any(LocalDateTime.class))).thenReturn(1);
 
-        boolean ok = outboxTxService.tryMarkSent(5L);
+        boolean ok = outboxTxService.tryMarkSent(id);
 
         assertTrue(ok);
-        verify(outboxEventRepository).markSent(eq(5L), eq(EventStatus.IN_PROGRESS), eq(EventStatus.SENT),
+        verify(outboxEventRepository).markSent(eq(id), eq(EventStatus.IN_PROGRESS), eq(EventStatus.SENT),
                 any(LocalDateTime.class));
     }
 
     @Test
     public void tryMarkSent_returnsFalse_whenNotUpdated() {
-        when(outboxEventRepository.markSent(eq(5L), eq(EventStatus.IN_PROGRESS), eq(EventStatus.SENT),
+        UUID id = UUID.randomUUID();
+
+        when(outboxEventRepository.markSent(eq(id), eq(EventStatus.IN_PROGRESS), eq(EventStatus.SENT),
                 any(LocalDateTime.class)))
                 .thenReturn(0);
 
-        boolean ok = outboxTxService.tryMarkSent(5L);
+        boolean ok = outboxTxService.tryMarkSent(id);
 
         assertFalse(ok);
-        verify(outboxEventRepository).markSent(eq(5L), eq(EventStatus.IN_PROGRESS), eq(EventStatus.SENT),
+        verify(outboxEventRepository).markSent(eq(id), eq(EventStatus.IN_PROGRESS), eq(EventStatus.SENT),
                 any(LocalDateTime.class));
     }
 

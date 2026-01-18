@@ -1,6 +1,7 @@
 package banking.core.web;
 
 import banking.core.controller.TransactionController;
+import banking.core.dto.requests.TransactionFilter;
 import banking.core.dto.responses.TransactionResponse;
 import banking.core.model.enums.TransactionStatus;
 import banking.core.model.enums.TransactionType;
@@ -58,7 +59,7 @@ public class TransactionControllerWebTest {
         var item = new TransactionResponse(UUID.randomUUID(), null, accountId, new BigDecimal("10.00"),
                 TransactionType.DEPOSIT, TransactionStatus.COMPLETED, LocalDateTime.now());
 
-        when(transactionService.getHistoryOfTransactions(eq(userId), eq(accountId), any()))
+        when(transactionService.getHistoryOfTransactions(any(TransactionFilter.class), eq(userId), any()))
                 .thenReturn(new PageImpl<>(List.of(item), PageRequest.of(0, 20), 1));
 
         mockMvc.perform(get("/transactions")

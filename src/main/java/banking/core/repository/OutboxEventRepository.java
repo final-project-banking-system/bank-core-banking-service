@@ -6,11 +6,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
-public interface OutboxEventRepository extends JpaRepository<OutboxEvent, Long> {
+@Repository
+public interface OutboxEventRepository extends JpaRepository<OutboxEvent, UUID> {
     List<OutboxEvent> findTop100ByStatusAndRetryCountLessThanOrderByCreatedAtAsc(EventStatus status, int maxRetries);
 
     @Modifying
@@ -19,14 +22,14 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEvent, Long> 
 
     @Modifying
     @Query("UPDATE OutboxEvent oe SET oe.status = :inProgress WHERE oe.id = :id AND oe.status = :pending")
-    int markInProgress(@Param("id") Long id,
+    int markInProgress(@Param("id") UUID id,
                        @Param("pending") EventStatus pending,
                        @Param("inProgress") EventStatus inProgress);
 
     @Modifying
     @Query("UPDATE OutboxEvent oe SET oe.status = :sent, oe.processedAt = :processedAt" +
             " WHERE oe.id = :id AND oe.status = :inProgress")
-    int markSent(@Param("id") Long id,
+    int markSent(@Param("id") UUID id,
                  @Param("inProgress") EventStatus inProgress,
                  @Param("sent") EventStatus sent,
                  @Param("processedAt") LocalDateTime processedAt);
@@ -34,7 +37,7 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEvent, Long> 
     @Modifying
     @Query("UPDATE OutboxEvent oe SET oe.status = :status, oe.retryCount = oe.retryCount + 1, " +
             "oe.errorReason = :error WHERE oe.id = :id AND oe.status = :inProgress")
-    void markFailedOrRetry(@Param("id") Long id,
+    void markFailedOrRetry(@Param("id") UUID id,
                           @Param("inProgress") EventStatus inProgress,
                           @Param("status") EventStatus status,
                           @Param("error") String error);

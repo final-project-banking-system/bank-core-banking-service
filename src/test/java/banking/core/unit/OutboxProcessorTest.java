@@ -41,38 +41,40 @@ public class OutboxProcessorTest {
 
     @Test
     public void processOutboxMessages_success_marksSent() {
+        UUID eventId = UUID.randomUUID();
         UUID aggregateId = UUID.randomUUID();
 
-        OutboxEvent event = createEvent(1L, "TRANSACTION", aggregateId, "banking.transfers",
+        OutboxEvent event = createEvent(eventId, "TRANSACTION", aggregateId, "banking.transfers",
                 createPayload("TRANSFER_COMPLETED"));
 
         when(outboxEventRepository.findTop100ByStatusAndRetryCountLessThanOrderByCreatedAtAsc(eq(EventStatus.PENDING),
                 anyInt())).thenReturn(List.of(event));
 
-        when(outboxTxService.tryMarkInProgress(1L)).thenReturn(true);
-        when(outboxTxService.tryMarkSent(1L)).thenReturn(true);
+        when(outboxTxService.tryMarkInProgress(eventId)).thenReturn(true);
+        when(outboxTxService.tryMarkSent(eventId)).thenReturn(true);
 
         when(kafkaTemplate.send(eq("banking.transfers"), eq(aggregateId.toString()), anyString()))
                 .thenReturn(CompletableFuture.completedFuture(null));
 
         outboxProcessor.processOutboxMessages();
 
-        verify(outboxTxService).tryMarkInProgress(1L);
+        verify(outboxTxService).tryMarkInProgress(eventId);
         verify(kafkaTemplate).send(eq("banking.transfers"), eq(aggregateId.toString()), anyString());
-        verify(outboxTxService).tryMarkSent(1L);
+        verify(outboxTxService).tryMarkSent(eventId);
     }
 
     @Test
     public void processOutboxMessages_failure_callsHandleFailure() {
+        UUID eventId = UUID.randomUUID();
         UUID aggregateId = UUID.randomUUID();
 
-        OutboxEvent event = createEvent(2L, "ERROR", aggregateId, "system.errors",
+        OutboxEvent event = createEvent(eventId, "ERROR", aggregateId, "system.errors",
                 createPayload("SYSTEM_ERROR"));
 
         when(outboxEventRepository.findTop100ByStatusAndRetryCountLessThanOrderByCreatedAtAsc(eq(EventStatus.PENDING),
                 anyInt())).thenReturn(List.of(event));
 
-        when(outboxTxService.tryMarkInProgress(2L)).thenReturn(true);
+        when(outboxTxService.tryMarkInProgress(eventId)).thenReturn(true);
 
         CompletableFuture<SendResult<String, String>> failed = CompletableFuture
                 .failedFuture(new RuntimeException("kafka down"));
@@ -82,21 +84,23 @@ public class OutboxProcessorTest {
 
         outboxProcessor.processOutboxMessages();
 
-        verify(outboxTxService).tryMarkInProgress(2L);
-        verify(outboxTxService).handleFailure(eq(2L), eq(3), contains("kafka down"));
+        verify(outboxTxService).tryMarkInProgress(eventId);
+        verify(outboxTxService).handleFailure(eq(eventId), eq(3), contains("kafka down"));
     }
 
-    private static OutboxEvent createEvent(Long id, String aggregateType, UUID aggregateId, String topic, ObjectNode payload) {
-        return OutboxEvent.builder()
-                .id(id)
+    private static OutboxEvent createEvent(UUID id, String aggregateType, UUID aggregateId, String topic, ObjectNode payload) {
+        var event = OutboxEvent.builder()
                 .aggregateType(aggregateType)
                 .aggregateId(aggregateId)
                 .topic(topic)
                 .payload(payload)
                 .status(EventStatus.PENDING)
                 .retryCount(0)
-                .createdAt(LocalDateTime.now())
                 .build();
+        event.setId(id);
+        event.setCreatedAt(LocalDateTime.now());
+
+        return event;
     }
 
     private static ObjectNode createPayload(String eventType) {
