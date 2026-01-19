@@ -19,6 +19,7 @@ spring:
           jwk-set-uri: http://bank-auth-service:8081/auth/.well-known/jwks.json
   kafka:
     admin:
+      auto-create: true
       properties:
         offsets.topic.replication.factor: 1
         transaction.state.log.replication.factor: 1
