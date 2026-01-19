@@ -100,7 +100,7 @@ public class OutboxProcessorKafkaIT extends IntegrationTestBase{
         return new KafkaConsumer<>(props);
     }
 
-    private OutboxEvent waitUntilSent(Long eventId, int seconds) {
+    private OutboxEvent waitUntilSent(UUID eventId, int seconds) {
         Instant deadline = Instant.now().plusSeconds(seconds);
 
         while (Instant.now().isBefore(deadline)) {

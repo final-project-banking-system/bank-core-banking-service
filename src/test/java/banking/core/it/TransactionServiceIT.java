@@ -1,5 +1,7 @@
 package banking.core.it;
 
+import banking.core.dto.requests.TransactionFilter;
+import banking.core.dto.responses.TransactionResponse;
 import banking.core.error.exception.TransferBusinessException;
 import banking.core.model.entity.BankAccount;
 import banking.core.model.entity.Transaction;
@@ -66,11 +68,13 @@ public class TransactionServiceIT extends IntegrationTestBase {
                 .status(TransactionStatus.COMPLETED)
                 .build());
 
-        var page = transactionService.getHistoryOfTransactions(userId, bankAccount.getId(),
-                PageRequest.of(0, 20));
+        TransactionFilter filter = new TransactionFilter();
+        filter.setAccountId(bankAccount.getId());
+
+        var page = transactionService.getHistoryOfTransactions(filter, userId, PageRequest.of(0, 20));
         assertEquals(2, page.getTotalElements());
 
-        var ids = page.getContent().stream().map(r -> r.getId()).toList();
+        var ids = page.getContent().stream().map(TransactionResponse::getId).toList();
         assertTrue(ids.contains(transaction1.getId()));
         assertTrue(ids.contains(transaction2.getId()));
     }
@@ -87,9 +91,11 @@ public class TransactionServiceIT extends IntegrationTestBase {
                 .balance(new BigDecimal("0.00"))
                 .build());
 
+        TransactionFilter filter = new TransactionFilter();
+        filter.setAccountId(bankAccount.getId());
+
         var exception = assertThrows(TransferBusinessException.class,
-                () -> transactionService.getHistoryOfTransactions(userId, bankAccount.getId(),
-                        PageRequest.of(0, 10)));
+                () -> transactionService.getHistoryOfTransactions(filter, userId, PageRequest.of(0, 10)));
 
         assertNotNull(exception.getMessage());
     }

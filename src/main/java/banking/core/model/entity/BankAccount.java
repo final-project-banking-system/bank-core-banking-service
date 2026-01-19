@@ -4,7 +4,6 @@ import banking.core.model.enums.AccountStatus;
 import banking.core.model.enums.Currency;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
@@ -18,11 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BankAccount {
-    @Id
-    @Column(name = "id", updatable = false, nullable = false)
-    private UUID id;
-
+public class BankAccount extends BaseEntity {
     @Column(name = "user_id", updatable = false, nullable = false)
     private UUID userId;
 
@@ -46,18 +41,7 @@ public class BankAccount {
     @Column(name = "version", nullable = false)
     private Long version;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    private void generateId() {
-        if (id == null) {
-            id = UUID.randomUUID();
-        }
-    }
 }

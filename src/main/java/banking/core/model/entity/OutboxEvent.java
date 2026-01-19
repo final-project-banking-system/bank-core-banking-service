@@ -4,7 +4,6 @@ import banking.core.model.enums.EventStatus;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -18,11 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OutboxEvent {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+public class OutboxEvent extends BaseEntity {
     @Column(name = "aggregate_type", nullable = false, length = 100)
     private String aggregateType;
 
@@ -47,10 +42,6 @@ public class OutboxEvent {
 
     @Column(name = "error_reason", length = 1000)
     private String errorReason;
-
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
 
     @Column(name = "processed_at")
     private LocalDateTime processedAt;

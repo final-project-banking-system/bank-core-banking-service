@@ -46,6 +46,6 @@ public class SystemErrorPublisher {
                 .payload(json)
                 .build());
 
-        log.warn("System error saved to outbox: errorId={}, operation={}, message={}", errorId, operation, message);
+        log.info("System error saved to outbox: errorId={}, operation={}, message={}", errorId, operation, message);
     }
 }
